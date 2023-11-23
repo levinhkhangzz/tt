@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Synced 3D Scene</title>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+
+      // Initialize localStorage key
+      const localStorageKey = 'synced3DScene';
+
+      // Check if localStorage has data
+      const savedData = localStorage.getItem(localStorageKey);
+      const initialPosition = savedData
+        ? JSON.parse(savedData)
+        : { x: 0, y: 0, z: 0 };
+
+      // Create scene, camera, and renderer
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Create a cube
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      const cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
+
+      // Set initial position
+      cube.position.set(
+        initialPosition.x,
+        initialPosition.y,
+        initialPosition.z
+      );
+
+      // Update localStorage and broadcast changes
+      function updateLocalStorageAndBroadcast() {
+        const currentPosition = cube.position;
+        localStorage.setItem(
+          localStorageKey,
+          JSON.stringify({
+            x: currentPosition.x,
+            y: currentPosition.y,
+            z: currentPosition.z,
+          })
+        );
+      }
+
+      // Move cube on mouse click
+      window.addEventListener('click', () => {
+        cube.position.x += 1;
+        updateLocalStorageAndBroadcast();
+      });
+
+      // Camera position
+      camera.position.z = 5;
+
+      // Render loop
+      const animate = function () {
+        requestAnimationFrame(animate);
+
+        // Render the scene
+        renderer.render(scene, camera);
+      };
+
+      animate();
+    </script>
+  </body>
+</html>
